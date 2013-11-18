@@ -14,14 +14,11 @@ def main(path):
     with open(path) as csv_file:
         for date, _, name, amount, diff in csv.reader(csv_file, delimiter=';'):
             clear_name = clear(name)
-            #expense_type = clear_name
-            expense_type = 'Other'
-            for category, names in CATEGORIES.items():
-                if clear_name in names:
-                    expense_type = category
+            expense_type = categorize(clear_name) or 'Other'
             result[expense_type] += float(diff.replace(',', ''))
+    longest = max(map(len, result.keys()))
     for expense, total in result.items():
-        print '{0:18}  {1:,}'.format(expense, total)
+        print '{1:{0}} {2:,}'.format(longest, expense, total)
 
 
 def clear(name):
@@ -31,6 +28,12 @@ def clear(name):
     clear = re.sub(r'^Card \*\*\*\d+ ', '', name)
     clear = re.sub(r'(?:\d+ )?(MOSCOW|MOSKVA|MOSCOVSKAYA)', '', clear)
     return clear.strip()
+
+
+def categorize(name):
+    for category, names in CATEGORIES.items():
+        if name in names:
+            return category
 
 
 if __name__ == '__main__':
